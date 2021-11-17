@@ -6,13 +6,12 @@ imgStoreTesting = imageDatastore('TrafficSignData\Test', 'IncludeSubfolders', 1,
 imgTotalTrain = length(imgStoreTraining.Files);
 imgTotalTest = length(imgStoreTesting.Files);
 
-labelsTrain = countEachLabel(imgStoreTraining);
-labelsTest = countEachLabel(imgStoreTesting);
+labelsTrain = imgStoreTraining.Labels;
+labelsTest = imgStoreTesting.Labels;
 
 %%Empty vector for storing matlab formatted images. 
 imgMatrixTrain = [];
 imgMatrixTest = [];
-newVector = [];
 
 %%Fill imgVectorTrain array. 
 for j = 1:imgTotalTrain
@@ -21,6 +20,9 @@ for j = 1:imgTotalTrain
        imgdouble = im2double(imgGray);
        imgMatrixTrain = [imgMatrixTrain, imgdouble(:)];
 end
+%%Transposing to row vector. 
+imgMatrixTrain = imgMatrixTrain';
+
 
 %%Fill imgVectorTest array.
 for j = 1:imgTotalTest
@@ -29,12 +31,10 @@ for j = 1:imgTotalTest
        imgdouble = im2double(imgGray);
        imgMatrixTest = [imgMatrixTest, imgdouble(:)];
 end
+%%Transposing to row vector. 
+imgMatrixTest = imgMatrixTest';
 
-labelsTrainLoop = labelsTrain.Label;
-for j = 1:height(labelsTrain)
-    for k = 1:labelsTrain{j,2}
-        newVector(end+1) = labelsTrainLoop(1);
-    end
-end
-    
-%%dicriminantmodel = fitcdiscr(imgMatrixTrain, imgMatrixTrain)
+%%Model Training Section 
+dicriminantmodel = fitcdiscr(imgMatrixTrain, labelsTrain);
+predictions = predict(dicriminantmodel, imgMatrixTest);
+confusionchart(imgStoreTesting.Labels,predictions)
