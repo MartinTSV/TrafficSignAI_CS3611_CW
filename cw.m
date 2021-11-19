@@ -20,7 +20,7 @@ for j = 1:imgTotalTrain
        imgdouble = im2double(imgGray);
        imgMatrixTrain = [imgMatrixTrain, imgdouble(:)];
 end
-%%Transposing to row vector. 
+%%Transposing to row. 
 imgMatrixTrain = imgMatrixTrain';
 
 
@@ -31,10 +31,29 @@ for j = 1:imgTotalTest
        imgdouble = im2double(imgGray);
        imgMatrixTest = [imgMatrixTest, imgdouble(:)];
 end
-%%Transposing to row vector. 
+%%Transposing to row. 
 imgMatrixTest = imgMatrixTest';
 
 %%Model Training Section 
-dicriminantmodel = fitcdiscr(imgMatrixTrain, labelsTrain);
-predictions = predict(dicriminantmodel, imgMatrixTest);
-confusionchart(imgStoreTesting.Labels,predictions)
+model = fitcknn(imgMatrixTrain, labelsTrain);
+predictions = predict(model, imgMatrixTest);
+
+
+%%Find accuracy of model
+counter = 0; 
+for j = 1:height(predictions)
+    if(predictions(j) == labelsTest(j)) counter = counter + 1; end
+end
+
+accuracy = (counter/height(labelsTest));
+
+%%Bar Chart for accuracy. 
+figure('name', 'Accuracy Bar Chart');
+barchart = bar(accuracy);
+%%Change name if testing a different model. 
+model = 'K-Nearest Neighbour';
+set(gca, 'xticklabel', model); 
+text(1:length(accuracy), accuracy, num2str(accuracy'), 'vert', 'bottom', 'horiz', 'center'); 
+%%Confusion Chart
+figure('name', 'Confusion Chart');
+dconfusionch =  confusionchart(labelsTest,predictions, 'RowSummary', 'row-normalized');
